@@ -1,7 +1,6 @@
 package com.ymmihw.spring.integration.security;
 
 import java.util.logging.Logger;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -19,32 +18,34 @@ import org.springframework.security.authentication.AuthenticationManager;
 @EnableIntegration
 public class SecuredDirectChannel {
 
-    @Bean(name = "startDirectChannel")
-    @SecuredChannel(interceptor = "channelSecurityInterceptor", sendAccess = { "ROLE_VIEWER", "jane" })
-    public DirectChannel startDirectChannel() {
-        return new DirectChannel();
-    }
+  @Bean(name = "startDirectChannel")
+  @SecuredChannel(interceptor = "channelSecurityInterceptor", sendAccess = {"ROLE_VIEWER", "jane"})
+  public DirectChannel startDirectChannel() {
+    return new DirectChannel();
+  }
 
-    @ServiceActivator(inputChannel = "startDirectChannel", outputChannel = "endDirectChannel")
-    @PreAuthorize("hasRole('ROLE_LOGGER')")
-    public Message<?> logMessage(Message<?> message) {
-        Logger.getAnonymousLogger().info(message.toString());
-        return message;
-    }
+  @ServiceActivator(inputChannel = "startDirectChannel", outputChannel = "endDirectChannel")
+  @PreAuthorize("hasRole('ROLE_LOGGER')")
+  public Message<?> logMessage(Message<?> message) {
+    Logger.getAnonymousLogger().info(message.toString());
+    return message;
+  }
 
-    @Bean(name = "endDirectChannel")
-    @SecuredChannel(interceptor = "channelSecurityInterceptor", sendAccess = { "ROLE_EDITOR" })
-    public DirectChannel endDirectChannel() {
-        return new DirectChannel();
-    }
+  @Bean(name = "endDirectChannel")
+  @SecuredChannel(interceptor = "channelSecurityInterceptor", sendAccess = {"ROLE_EDITOR"})
+  public DirectChannel endDirectChannel() {
+    return new DirectChannel();
+  }
 
-    @Autowired
-    @Bean
-    public ChannelSecurityInterceptor channelSecurityInterceptor(AuthenticationManager authenticationManager, AccessDecisionManager customAccessDecisionManager) {
-        ChannelSecurityInterceptor channelSecurityInterceptor = new ChannelSecurityInterceptor();
-        channelSecurityInterceptor.setAuthenticationManager(authenticationManager);
-        channelSecurityInterceptor.setAccessDecisionManager(customAccessDecisionManager);
-        return channelSecurityInterceptor;
-    }
+  @Autowired
+  @Bean
+  public ChannelSecurityInterceptor channelSecurityInterceptor(
+      AuthenticationManager authenticationManager,
+      AccessDecisionManager customAccessDecisionManager) {
+    ChannelSecurityInterceptor channelSecurityInterceptor = new ChannelSecurityInterceptor();
+    channelSecurityInterceptor.setAuthenticationManager(authenticationManager);
+    channelSecurityInterceptor.setAccessDecisionManager(customAccessDecisionManager);
+    return channelSecurityInterceptor;
+  }
 
 }
